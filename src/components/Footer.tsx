@@ -108,12 +108,6 @@ export default function Footer() {
                 </div>
                 <span className="text-xs text-[var(--text-muted)]">Groq <span className="text-[var(--text-secondary)]">llama-3.3-70b</span></span>
               </div>
-              <div className="inline-flex items-center gap-2 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-lg px-2.5 py-1.5">
-                <div className="w-4 h-4 rounded bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-black text-[8px]">C</span>
-                </div>
-                <span className="text-xs text-[var(--text-muted)]">Built with <span className="text-[var(--text-secondary)]">Claude Code</span></span>
-              </div>
             </div>
           </div>
         </div>
