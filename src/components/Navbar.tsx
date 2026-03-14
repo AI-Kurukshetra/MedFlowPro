@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface NavbarProps {
   role: "doctor" | "patient";
@@ -14,6 +15,7 @@ export default function Navbar({ role, userName }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -87,8 +89,10 @@ export default function Navbar({ role, userName }: NavbarProps) {
     .join("")
     .toUpperCase();
 
+  const isDark = theme === "dark";
+
   return (
-    <nav className="bg-white border-b border-slate-100 sticky top-0 z-50 shadow-sm">
+    <nav className="app-nav sticky top-0 z-50 border-b border-white/10 bg-slate-950/70 backdrop-blur-2xl shadow-[0_18px_50px_rgba(2,6,23,0.4)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
 
@@ -98,15 +102,20 @@ export default function Navbar({ role, userName }: NavbarProps) {
               href={role === "doctor" ? "/dashboard" : "/patient/dashboard"}
               className="flex items-center gap-2.5 group"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow transition-shadow">
+              <div className="w-9 h-9 rounded-xl border border-white/10 bg-gradient-to-br from-sky-500 via-cyan-500 to-blue-600 flex items-center justify-center shadow-[0_10px_28px_rgba(14,165,233,0.28)] group-hover:scale-[1.02] transition-all">
                 <svg className="w-4.5 h-4.5 text-white" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2}
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                 </svg>
               </div>
-              <span className="text-[15px] font-bold text-slate-900 tracking-tight">
-                MedFlow <span className="text-blue-600">Pro</span>
-              </span>
+              <div className="leading-none">
+                <span className="text-[15px] font-bold text-slate-50 tracking-tight">
+                  MedFlow <span className="text-sky-300">Pro</span>
+                </span>
+                <p className="text-[10px] uppercase tracking-[0.24em] text-slate-500 mt-1">
+                  Clinical Workspace
+                </p>
+              </div>
             </Link>
           </div>
 
@@ -133,14 +142,43 @@ export default function Navbar({ role, userName }: NavbarProps) {
           {/* User area */}
           <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-3">
-              <div className="text-right leading-none">
-                <p className="text-sm font-semibold text-slate-800">{userName}</p>
-                <p className="text-xs text-slate-400 mt-0.5 capitalize">{role}</p>
+              <div className="app-user-chip text-right leading-none rounded-full border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-xl">
+                <p className="text-sm font-semibold text-slate-100">{userName}</p>
+                <p className="text-xs text-slate-500 mt-0.5 capitalize">{role}</p>
               </div>
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center shadow-[0_10px_28px_rgba(14,165,233,0.22)]">
                 <span className="text-white font-bold text-xs">{initials}</span>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="theme-toggle"
+              aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+              title={isDark ? "Switch to light theme" : "Switch to dark theme"}
+            >
+              {isDark ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20.354 15.354A9 9 0 018.646 3.646a9 9 0 1011.708 11.708z"
+                  />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 3v2.25M12 18.75V21m9-9h-2.25M5.25 12H3m15.114 6.364l-1.591-1.591M8.477 8.477L6.886 6.886m11.228 0l-1.591 1.591M8.477 15.523l-1.591 1.591M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              )}
+              <span className="hidden sm:inline">{isDark ? "Light" : "Dark"}</span>
+            </button>
 
             <button
               onClick={handleLogout}
@@ -156,7 +194,7 @@ export default function Navbar({ role, userName }: NavbarProps) {
             {/* Mobile hamburger */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+              className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-slate-300 hover:bg-white/10 transition-colors"
               aria-label="Toggle menu"
             >
               {menuOpen ? (
@@ -175,17 +213,44 @@ export default function Navbar({ role, userName }: NavbarProps) {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1 shadow-lg">
+        <div className="app-nav-menu md:hidden border-t border-white/10 bg-slate-950/90 px-4 py-3 space-y-1 shadow-[0_24px_70px_rgba(2,6,23,0.5)] backdrop-blur-2xl">
           {/* Mobile user info */}
-          <div className="flex items-center gap-3 px-3 py-3 mb-2 border-b border-slate-100">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+          <div className="flex items-center gap-3 px-3 py-3 mb-2 border-b border-white/10">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center">
               <span className="text-white font-bold text-xs">{initials}</span>
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-800">{userName}</p>
-              <p className="text-xs text-slate-400 capitalize">{role}</p>
+              <p className="text-sm font-semibold text-slate-100">{userName}</p>
+              <p className="text-xs text-slate-500 capitalize">{role}</p>
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="theme-toggle w-full justify-center"
+          >
+            {isDark ? (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20.354 15.354A9 9 0 018.646 3.646a9 9 0 1011.708 11.708z"
+                />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 3v2.25M12 18.75V21m9-9h-2.25M5.25 12H3m15.114 6.364l-1.591-1.591M8.477 8.477L6.886 6.886m11.228 0l-1.591 1.591M8.477 15.523l-1.591 1.591M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            )}
+            <span>Switch to {isDark ? "light" : "dark"} mode</span>
+          </button>
 
           {links.map((link) => {
             const isActive = pathname === link.href;

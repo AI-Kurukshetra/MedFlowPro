@@ -53,7 +53,9 @@ function NewPrescriptionForm() {
   useEffect(() => {
     const fetchData = async () => {
       const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) return;
 
       const [{ data: patientsData }, { data: medsData }] = await Promise.all([
@@ -69,6 +71,7 @@ function NewPrescriptionForm() {
         if (p) setSelectedPatient(p);
       }
     };
+
     fetchData();
   }, [preselectedPatient]);
 
@@ -78,7 +81,6 @@ function NewPrescriptionForm() {
 
     const supabase = createClient();
 
-    // Get patient's active medications
     const { data: activePrescriptions } = await supabase
       .from("prescriptions")
       .select("medications(name)")
@@ -89,7 +91,6 @@ function NewPrescriptionForm() {
       .map((p: any) => p.medications?.name)
       .filter(Boolean);
 
-    // Get patient info for AI context
     const patient = patients.find((p) => p.id === patientId);
     const age = patient?.dob
       ? Math.floor((Date.now() - new Date(patient.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
@@ -147,8 +148,14 @@ function NewPrescriptionForm() {
     setLoading(true);
 
     const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { router.push("/login"); return; }
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      router.push("/login");
+      return;
+    }
 
     const { data: prescription, error: insertError } = await supabase
       .from("prescriptions")
@@ -166,16 +173,18 @@ function NewPrescriptionForm() {
       .select()
       .single();
 
-    if (insertError) { setError(insertError.message); setLoading(false); return; }
+    if (insertError) {
+      setError(insertError.message);
+      setLoading(false);
+      return;
+    }
 
-    // Save medication history
     await supabase.from("medication_history").insert({
       patient_id: formData.patient_id,
       prescription_id: prescription.id,
       start_date: new Date().toISOString().split("T")[0],
     });
 
-    // Save AI-detected alerts
     if (aiResult?.interactions && aiResult.interactions.length > 0) {
       const alertInserts = aiResult.interactions.map((ix) => ({
         prescription_id: prescription.id,
@@ -189,65 +198,56 @@ function NewPrescriptionForm() {
   };
 
   const riskColors = {
-    safe: "bg-green-50 border-green-200 text-green-800",
-    low: "bg-blue-50 border-blue-200 text-blue-800",
-    medium: "bg-yellow-50 border-yellow-200 text-yellow-800",
-    high: "bg-red-50 border-red-200 text-red-800",
+    safe: "border-emerald-400/20 bg-emerald-500/10 text-emerald-100",
+    low: "border-sky-400/20 bg-sky-500/10 text-sky-100",
+    medium: "border-amber-400/20 bg-amber-500/10 text-amber-100",
+    high: "border-rose-400/20 bg-rose-500/10 text-rose-100",
   };
 
   const severityBadge = {
-    high: "bg-red-100 text-red-700",
-    medium: "bg-yellow-100 text-yellow-700",
-    low: "bg-blue-100 text-blue-700",
+    high: "bg-rose-400/15 text-rose-200 ring-1 ring-rose-400/20",
+    medium: "bg-amber-400/15 text-amber-100 ring-1 ring-amber-400/20",
+    low: "bg-sky-400/15 text-sky-100 ring-1 ring-sky-400/20",
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <Link href="/prescriptions" className="text-sm text-gray-500 hover:text-gray-700 flex items-center space-x-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span>Back to prescriptions</span>
-          </Link>
-        </div>
+    <div className="app-shell">
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+        <Link href="/prescriptions" className="back-link mb-6 group">
+          <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to prescriptions
+        </Link>
 
         <div className="card">
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mb-6 flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400/15 text-violet-300 ring-1 ring-violet-400/20">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">New Prescription</h1>
-              <p className="text-xs text-purple-600 font-medium">AI-Powered Drug Interaction Analysis</p>
+              <p className="eyebrow mb-2 text-violet-300/80">AI-assisted prescribing</p>
+              <h1 className="page-title">New Prescription</h1>
+              <p className="mt-1 text-sm text-slate-400">
+                Real-time clinical interaction analysis while you prescribe.
+              </p>
             </div>
           </div>
-          <p className="text-gray-500 text-sm mb-6">
-            Powered by Llama 3.3-70B — real-time clinical interaction analysis
-          </p>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
+            <div className="mb-6 rounded-xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Patient */}
             <div>
               <label className="label" htmlFor="patient">
-                Patient <span className="text-red-500">*</span>
+                Patient <span className="text-rose-300">*</span>
               </label>
-              <select
-                id="patient"
-                value={formData.patient_id}
-                onChange={(e) => handlePatientChange(e.target.value)}
-                className="input-field"
-                required
-              >
+              <select id="patient" value={formData.patient_id} onChange={(e) => handlePatientChange(e.target.value)} className="input-field" required>
                 <option value="">Select a patient</option>
                 {patients.map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
@@ -255,19 +255,11 @@ function NewPrescriptionForm() {
               </select>
             </div>
 
-            {/* Medication */}
             <div>
               <label className="label" htmlFor="medication">
-                Medication <span className="text-red-500">*</span>
+                Medication <span className="text-rose-300">*</span>
               </label>
-              <select
-                id="medication"
-                value={formData.medication_id}
-                onChange={(e) => handleMedicationChange(e.target.value)}
-                className="input-field"
-                required
-                disabled={!formData.patient_id}
-              >
+              <select id="medication" value={formData.medication_id} onChange={(e) => handleMedicationChange(e.target.value)} className="input-field" required disabled={!formData.patient_id}>
                 <option value="">{formData.patient_id ? "Select a medication" : "Select a patient first"}</option>
                 {medications.map((med) => (
                   <option key={med.id} value={med.id}>
@@ -277,27 +269,23 @@ function NewPrescriptionForm() {
               </select>
             </div>
 
-            {/* Medication info */}
             {selectedMedication && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm font-semibold text-blue-800">{selectedMedication.name}</p>
+              <div className="rounded-2xl border border-sky-400/15 bg-sky-500/8 p-4">
+                <p className="text-sm font-semibold text-sky-100">{selectedMedication.name}</p>
                 {selectedMedication.description && (
-                  <p className="text-xs text-blue-600 mt-1">{selectedMedication.description}</p>
+                  <p className="mt-1 text-xs text-slate-300">{selectedMedication.description}</p>
                 )}
               </div>
             )}
 
-            {/* AI Analysis */}
             {aiLoading && (
-              <div className="border border-purple-200 bg-purple-50 rounded-xl p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-5 h-5 border-2 border-purple-400 border-t-purple-700 rounded-full animate-spin flex-shrink-0" />
+              <div className="rounded-2xl border border-violet-400/20 bg-violet-500/10 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-5 w-5 flex-shrink-0 rounded-full border-2 border-violet-300 border-t-transparent animate-spin" />
                   <div>
-                    <p className="text-sm font-semibold text-purple-800">
-                      AI analyzing drug interactions...
-                    </p>
-                    <p className="text-xs text-purple-600 mt-0.5">
-                      Llama 3.3-70B is reviewing {selectedMedication?.name} against patient&apos;s medications
+                    <p className="text-sm font-semibold text-violet-100">AI analyzing drug interactions...</p>
+                    <p className="mt-0.5 text-xs text-violet-200/80">
+                      Reviewing {selectedMedication?.name} against the patient&apos;s active medications
                     </p>
                   </div>
                 </div>
@@ -306,72 +294,69 @@ function NewPrescriptionForm() {
 
             {aiResult && !aiLoading && (
               <div className="space-y-3">
-                {/* Overall risk banner */}
-                <div className={`border rounded-xl p-4 ${riskColors[aiResult.overallRisk]}`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-2">
+                <div className={`rounded-2xl border p-4 ${riskColors[aiResult.overallRisk]}`}>
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                          d={aiResult.overallRisk === "safe"
-                            ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                            : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                          }
-                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={aiResult.overallRisk === "safe" ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"} />
                       </svg>
-                      <span className="text-sm font-bold uppercase tracking-wide">
-                        AI Assessment: {aiResult.overallRisk === "safe" ? "No Interactions Found" : `${aiResult.overallRisk} Risk`}
+                      <span className="text-sm font-semibold uppercase tracking-[0.22em]">
+                        {aiResult.overallRisk === "safe" ? "No interactions found" : `${aiResult.overallRisk} risk`}
                       </span>
                     </div>
-                    <span className="text-xs bg-white bg-opacity-60 px-2 py-0.5 rounded-full font-medium">
+                    <span className="rounded-full bg-black/15 px-2.5 py-1 text-xs font-medium text-current">
                       Llama 3.3-70B
                     </span>
                   </div>
                   <p className="text-sm">{aiResult.clinicalSummary}</p>
                 </div>
 
-                {/* Individual interactions */}
                 {aiResult.interactions.map((ix, i) => (
-                  <div key={i} className={`border rounded-lg p-4 ${
-                    ix.severity === "high" ? "bg-red-50 border-red-200" :
-                    ix.severity === "medium" ? "bg-yellow-50 border-yellow-200" :
-                    "bg-blue-50 border-blue-200"
-                  }`}>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4 flex-shrink-0 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div
+                    key={i}
+                    className={`rounded-2xl border p-4 ${
+                      ix.severity === "high"
+                        ? "border-rose-400/20 bg-rose-500/10"
+                        : ix.severity === "medium"
+                          ? "border-amber-400/20 bg-amber-500/10"
+                          : "border-sky-400/20 bg-sky-500/10"
+                    }`}
+                  >
+                    <div className="mb-2 flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
-                        <span className="text-sm font-semibold text-gray-800">
+                        <span className="text-sm font-semibold text-slate-100">
                           {ix.medication1} + {ix.medication2}
                         </span>
                       </div>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase ${severityBadge[ix.severity]}`}>
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold uppercase ${severityBadge[ix.severity]}`}>
                         {ix.severity}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-700">{ix.warning}</p>
+                    <p className="text-sm text-slate-200">{ix.warning}</p>
                     {ix.mechanism && (
-                      <p className="text-xs text-gray-500 mt-1 italic">Mechanism: {ix.mechanism}</p>
+                      <p className="mt-1 text-xs italic text-slate-400">Mechanism: {ix.mechanism}</p>
                     )}
                   </div>
                 ))}
 
-                {/* AI-suggested alternatives */}
                 {aiResult.alternatives && aiResult.alternatives.length > 0 && (
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                    <p className="text-sm font-semibold text-purple-800 mb-2 flex items-center space-x-1">
+                  <div className="rounded-2xl border border-violet-400/20 bg-violet-500/10 p-4">
+                    <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-violet-100">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
-                      <span>AI-Suggested Alternatives</span>
+                      AI-Suggested Alternatives
                     </p>
                     <div className="space-y-2">
                       {aiResult.alternatives.map((alt, i) => (
-                        <div key={i} className="flex items-start space-x-2">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 flex-shrink-0 mt-0.5">
+                        <div key={i} className="flex items-start gap-2">
+                          <span className="rounded-full bg-violet-400/15 px-2.5 py-1 text-xs font-medium text-violet-100 ring-1 ring-violet-400/20">
                             {alt.name}
                           </span>
-                          <span className="text-xs text-purple-700">{alt.reason}</span>
+                          <span className="text-xs text-slate-300">{alt.reason}</span>
                         </div>
                       ))}
                     </div>
@@ -380,33 +365,18 @@ function NewPrescriptionForm() {
               </div>
             )}
 
-            {/* Dose & Frequency */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="label" htmlFor="dose">
-                  Dose <span className="text-red-500">*</span>
+                  Dose <span className="text-rose-300">*</span>
                 </label>
-                <input
-                  id="dose"
-                  type="text"
-                  value={formData.dose}
-                  onChange={(e) => setFormData({ ...formData, dose: e.target.value })}
-                  className="input-field"
-                  placeholder="e.g., 500mg"
-                  required
-                />
+                <input id="dose" type="text" value={formData.dose} onChange={(e) => setFormData({ ...formData, dose: e.target.value })} className="input-field" placeholder="e.g., 500mg" required />
               </div>
               <div>
                 <label className="label" htmlFor="frequency">
-                  Frequency <span className="text-red-500">*</span>
+                  Frequency <span className="text-rose-300">*</span>
                 </label>
-                <select
-                  id="frequency"
-                  value={formData.frequency}
-                  onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
-                  className="input-field"
-                  required
-                >
+                <select id="frequency" value={formData.frequency} onChange={(e) => setFormData({ ...formData, frequency: e.target.value })} className="input-field" required>
                   <option value="">Select frequency</option>
                   <option value="Once daily">Once daily</option>
                   <option value="Twice daily">Twice daily</option>
@@ -423,49 +393,24 @@ function NewPrescriptionForm() {
 
             <div>
               <label className="label" htmlFor="duration">Duration</label>
-              <input
-                id="duration"
-                type="text"
-                value={formData.duration}
-                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                className="input-field"
-                placeholder="e.g., 7 days, 2 weeks, 1 month"
-              />
+              <input id="duration" type="text" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} className="input-field" placeholder="e.g., 7 days, 2 weeks, 1 month" />
             </div>
 
             <div>
               <label className="label" htmlFor="pharmacy">Pharmacy</label>
-              <input
-                id="pharmacy"
-                type="text"
-                value={formData.pharmacy}
-                onChange={(e) => setFormData({ ...formData, pharmacy: e.target.value })}
-                className="input-field"
-                placeholder="e.g., City Pharmacy, CVS on Main St"
-              />
+              <input id="pharmacy" type="text" value={formData.pharmacy} onChange={(e) => setFormData({ ...formData, pharmacy: e.target.value })} className="input-field" placeholder="e.g., City Pharmacy, CVS on Main St" />
             </div>
 
             <div>
               <label className="label" htmlFor="notes">Notes / Instructions</label>
-              <textarea
-                id="notes"
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="input-field"
-                rows={3}
-                placeholder="Take with food, avoid grapefruit juice..."
-              />
+              <textarea id="notes" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="input-field min-h-28" rows={4} placeholder="Take with food, avoid grapefruit juice..." />
             </div>
 
-            <div className="flex space-x-3 pt-2">
-              <button
-                type="submit"
-                disabled={loading || aiLoading}
-                className="btn-primary flex-1 py-3"
-              >
+            <div className="flex gap-3 pt-2">
+              <button type="submit" disabled={loading || aiLoading} className="btn-primary flex-1 py-3">
                 {loading ? "Creating prescription..." : "Create Prescription"}
               </button>
-              <Link href="/prescriptions" className="btn-secondary py-3 px-6">
+              <Link href="/prescriptions" className="btn-secondary px-6 py-3">
                 Cancel
               </Link>
             </div>
@@ -478,7 +423,13 @@ function NewPrescriptionForm() {
 
 export default function NewPrescriptionPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
+    <Suspense
+      fallback={
+        <div className="app-shell flex items-center justify-center">
+          <div className="h-10 w-10 rounded-full border-4 border-sky-300/20 border-t-sky-300 animate-spin" />
+        </div>
+      }
+    >
       <NewPrescriptionForm />
     </Suspense>
   );

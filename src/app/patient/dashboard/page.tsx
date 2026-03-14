@@ -7,7 +7,6 @@ export const dynamic = "force-dynamic";
 
 export default async function PatientDashboardPage() {
   const supabase = await createClient();
-
   const user = await getCurrentUser();
 
   if (!user) redirect("/login");
@@ -20,7 +19,6 @@ export default async function PatientDashboardPage() {
 
   if (!profile || profile.role !== "patient") redirect("/dashboard");
 
-  // Find the patient record linked to this user's email
   const { data: patientRecord } = await supabase
     .from("patients")
     .select("*")
@@ -54,167 +52,140 @@ export default async function PatientDashboardPage() {
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="app-shell">
       <Navbar role="patient" userName={profile.full_name} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="page-container space-y-8">
+        <div className="patient-hero relative overflow-hidden rounded-[30px] border border-white/10 p-6 sm:p-8 shadow-[0_28px_90px_rgba(2,6,23,0.5)]">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute -top-10 right-0 h-48 w-48 rounded-full bg-white/5 blur-3xl" />
+            <div className="absolute bottom-0 left-1/4 h-40 w-40 rounded-full bg-emerald-300/10 blur-3xl" />
+          </div>
 
-        {/* Greeting banner */}
-        <div className="relative rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 p-6 sm:p-8 overflow-hidden shadow-lg">
-          <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/5 rounded-full pointer-events-none" />
-          <div className="absolute -bottom-12 right-24 w-36 h-36 bg-teal-500/20 rounded-full pointer-events-none" />
-
-          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-emerald-200 text-sm font-medium mb-1">{greeting},</p>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">{firstName} 👋</h1>
-              <p className="text-emerald-200 mt-1.5 text-sm">
-                Your medication overview and recent prescriptions
+              <p className="eyebrow mb-3 text-emerald-300/80">Your treatment overview</p>
+              <h1 className="text-3xl sm:text-4xl font-semibold text-white">
+                {greeting}, {firstName}
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-slate-300">
+                Track your current medications, prescription history, and active treatment plan in
+                one place.
               </p>
             </div>
-            <Link
-              href="/patient/medications"
-              className="self-start sm:self-auto inline-flex items-center gap-2 bg-white text-emerald-700 font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm hover:bg-emerald-50 transition-colors"
-            >
+            <Link href="/patient/medications" className="btn-secondary self-start sm:self-auto">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
               </svg>
               View Medications
             </Link>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {/* Active medications */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="stat-card">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            <div className="mb-5 flex items-start justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/20">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                 </svg>
               </div>
-              {activeMeds.length > 0 && (
-                <span className="badge-active">{activeMeds.length} active</span>
-              )}
+              {activeMeds.length > 0 && <span className="badge-active">{activeMeds.length} active</span>}
             </div>
-            <p className="text-4xl font-bold text-slate-900">{activeMeds.length}</p>
-            <p className="text-sm font-medium text-slate-500 mt-1">Active Medications</p>
-            <Link
-              href="/patient/medications"
-              className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700 font-semibold mt-4 group"
-            >
+            <p className="text-4xl font-semibold text-white">{activeMeds.length}</p>
+            <p className="mt-1 text-sm text-slate-400">Active medications in your current plan</p>
+            <Link href="/patient/medications" className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-emerald-300 hover:text-emerald-200">
               View medications
-              <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
           </div>
 
-          {/* Total prescriptions */}
           <div className="stat-card">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-sm">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            <div className="mb-5 flex items-start justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-400/15 text-sky-300 ring-1 ring-sky-400/20">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">History</span>
+              <span className="badge-completed">History</span>
             </div>
-            <p className="text-4xl font-bold text-slate-900">{recentPrescriptions.length}</p>
-            <p className="text-sm font-medium text-slate-500 mt-1">Total Prescriptions</p>
-            <p className="text-sm text-slate-400 mt-4">Complete prescription history</p>
+            <p className="text-4xl font-semibold text-white">{recentPrescriptions.length}</p>
+            <p className="mt-1 text-sm text-slate-400">Prescriptions recorded on your account</p>
+            <p className="mt-5 text-sm text-slate-500">Complete medication history in your portal.</p>
           </div>
         </div>
 
-        {/* Active medication cards */}
         {activeMeds.length > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-slate-900">Current Medications</h2>
-              <Link
-                href="/patient/medications"
-                className="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
-              >
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="eyebrow mb-2 text-emerald-300/75">Current treatment</p>
+                <h2 className="text-lg font-semibold text-white">Current medications</h2>
+              </div>
+              <Link href="/patient/medications" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
                 View all
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {activeMeds.map((rx: any) => (
-                <div
-                  key={rx.id}
-                  className="bg-white rounded-2xl border border-emerald-100 shadow-sm overflow-hidden hover:shadow-md hover:border-emerald-200 transition-all duration-200"
-                >
-                  {/* Card header stripe */}
-                  <div className="h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500" />
-
-                  <div className="p-5">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-4.5 h-4.5 text-emerald-600" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                        </svg>
-                      </div>
-                      <span className="badge-active">Active</span>
+                <div key={rx.id} className="card">
+                  <div className="mb-4 flex items-start justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/20">
+                      <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                      </svg>
                     </div>
-
-                    <h3 className="font-bold text-slate-900">{rx.medications?.name}</h3>
-                    <p className="text-sm text-slate-500 mt-0.5">
-                      {rx.dose} &middot; {rx.frequency}
-                    </p>
-
-                    {rx.duration && (
-                      <div className="mt-3 pt-3 border-t border-slate-50">
-                        <p className="text-xs text-slate-400">{rx.duration}</p>
-                      </div>
-                    )}
-
-                    {rx.notes && (
-                      <div className="mt-2">
-                        <p className="text-xs text-slate-500 italic">{rx.notes}</p>
-                      </div>
-                    )}
+                    <span className="badge-active">Active</span>
                   </div>
+
+                  <h3 className="text-base font-semibold text-white">{rx.medications?.name}</h3>
+                  <p className="mt-1 text-sm text-slate-400">
+                    {rx.dose} · {rx.frequency}
+                  </p>
+
+                  {rx.duration && (
+                    <div className="mt-4 rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-3 text-xs text-slate-400">
+                      {rx.duration}
+                    </div>
+                  )}
+
+                  {rx.notes && <p className="mt-3 text-xs italic text-slate-500">{rx.notes}</p>}
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Recent prescriptions list */}
         <div className="card">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">Recent Prescriptions</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Last 5 prescriptions</p>
-            </div>
+          <div className="mb-5">
+            <p className="eyebrow mb-2 text-emerald-300/75">Medication timeline</p>
+            <h2 className="text-lg font-semibold text-white">Recent prescriptions</h2>
+            <p className="text-xs text-slate-500">Last 5 prescriptions on your account</p>
           </div>
 
           {recentPrescriptions.length > 0 ? (
-            <div className="space-y-1">
+            <div className="space-y-2">
               {recentPrescriptions.map((rx: any) => (
                 <div
                   key={rx.id}
-                  className="flex items-center justify-between py-3 px-3 rounded-xl hover:bg-slate-50 transition-colors"
+                  className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-3 hover:border-emerald-400/20 hover:bg-white/[0.05]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      rx.status === "active" ? "bg-emerald-100" : "bg-slate-100"
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
+                      rx.status === "active" ? "bg-emerald-400/15 text-emerald-300" : "bg-white/8 text-slate-400"
                     }`}>
-                      <svg className={`w-4 h-4 ${
-                        rx.status === "active" ? "text-emerald-600" : "text-slate-400"
-                      }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                          d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-800">{rx.medications?.name}</p>
-                      <p className="text-xs text-slate-400">{rx.dose} &middot; {rx.frequency}</p>
+                      <p className="text-sm font-semibold text-slate-100">{rx.medications?.name}</p>
+                      <p className="text-xs text-slate-500">
+                        {rx.dose} · {rx.frequency}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -223,13 +194,13 @@ export default async function PatientDashboardPage() {
                         rx.status === "active"
                           ? "badge-active"
                           : rx.status === "completed"
-                          ? "badge-completed"
-                          : "badge-cancelled"
+                            ? "badge-completed"
+                            : "badge-cancelled"
                       }
                     >
                       {rx.status}
                     </span>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="mt-1 text-xs text-slate-500">
                       {new Date(rx.created_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -237,23 +208,21 @@ export default async function PatientDashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
-                <svg className="w-7 h-7 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            <div className="flex flex-col items-center justify-center rounded-[24px] border border-dashed border-white/10 bg-white/[0.03] py-14 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-slate-500">
+                <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <p className="text-sm font-semibold text-slate-600">No prescriptions found</p>
+              <p className="text-sm font-semibold text-slate-300">No prescriptions found</p>
               {!patientRecord && (
-                <p className="text-xs mt-2 text-slate-400 max-w-xs">
-                  Your account is not yet linked to a patient record. Please contact your doctor.
+                <p className="mt-2 max-w-xs text-xs text-slate-500">
+                  Your account is not linked to a patient record yet. Please contact your doctor.
                 </p>
               )}
             </div>
           )}
         </div>
-
       </main>
     </div>
   );

@@ -1,57 +1,53 @@
 export default function DashboardLoading() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navbar skeleton */}
-      <div className="bg-white border-b border-gray-200 h-16 animate-pulse">
-        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+    <div className="app-shell">
+      <div className="h-16 animate-pulse border-b border-white/10 bg-slate-950/70">
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gray-200 rounded-lg" />
-            <div className="w-32 h-4 bg-gray-200 rounded" />
+            <div className="h-8 w-8 rounded-lg bg-white/10" />
+            <div className="h-4 w-32 rounded bg-white/10" />
           </div>
-          <div className="hidden md:flex items-center gap-4">
-            <div className="w-20 h-4 bg-gray-100 rounded" />
-            <div className="w-20 h-4 bg-gray-100 rounded" />
-            <div className="w-20 h-4 bg-gray-100 rounded" />
+          <div className="hidden items-center gap-4 md:flex">
+            <div className="h-4 w-20 rounded bg-white/5" />
+            <div className="h-4 w-20 rounded bg-white/5" />
+            <div className="h-4 w-20 rounded bg-white/5" />
           </div>
-          <div className="w-20 h-8 bg-gray-100 rounded-lg" />
+          <div className="h-8 w-20 rounded-lg bg-white/5" />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
-        {/* Header */}
+      <div className="mx-auto max-w-7xl animate-pulse px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <div className="h-7 bg-gray-200 rounded w-64 mb-2" />
-          <div className="h-4 bg-gray-100 rounded w-48" />
+          <div className="mb-2 h-7 w-64 rounded bg-white/10" />
+          <div className="h-4 w-48 rounded bg-white/5" />
         </div>
 
-        {/* Stat cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-200 p-6">
+            <div key={i} className="rounded-[24px] border border-white/10 bg-white/[0.04] p-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
-                  <div className="h-3 bg-gray-200 rounded w-28" />
-                  <div className="h-8 bg-gray-200 rounded w-10 mt-2" />
+                  <div className="h-3 w-28 rounded bg-white/10" />
+                  <div className="mt-2 h-8 w-10 rounded bg-white/10" />
                 </div>
-                <div className="w-12 h-12 bg-gray-100 rounded-xl" />
+                <div className="h-12 w-12 rounded-xl bg-white/5" />
               </div>
-              <div className="h-3 bg-gray-100 rounded w-24 mt-4" />
+              <div className="mt-4 h-3 w-24 rounded bg-white/5" />
             </div>
           ))}
         </div>
 
-        {/* Content panels */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {[1, 2].map((i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="h-5 bg-gray-200 rounded w-40 mb-5" />
+            <div key={i} className="rounded-[24px] border border-white/10 bg-white/[0.04] p-6">
+              <div className="mb-5 h-5 w-40 rounded bg-white/10" />
               {[1, 2, 3, 4].map((j) => (
-                <div key={j} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                <div key={j} className="flex items-center justify-between border-b border-white/5 py-3 last:border-0">
                   <div className="space-y-2">
-                    <div className="h-3 bg-gray-200 rounded w-32" />
-                    <div className="h-3 bg-gray-100 rounded w-24" />
+                    <div className="h-3 w-32 rounded bg-white/10" />
+                    <div className="h-3 w-24 rounded bg-white/5" />
                   </div>
-                  <div className="h-5 w-14 bg-gray-100 rounded-full" />
+                  <div className="h-5 w-14 rounded-full bg-white/5" />
                 </div>
               ))}
             </div>
