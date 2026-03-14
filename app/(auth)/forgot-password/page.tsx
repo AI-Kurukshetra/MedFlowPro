@@ -1,0 +1,13 @@
+import { AuthCard } from "@/components/auth/AuthCard";
+import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
+
+export default function ForgotPasswordPage() {
+  return (
+    <AuthCard
+      title="Reset password"
+      subtitle="We will send a secure reset link to your email."
+    >
+      <ForgotPasswordForm />
+    </AuthCard>
+  );
+}
