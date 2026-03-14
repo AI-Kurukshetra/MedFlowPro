@@ -13,6 +13,7 @@ export default function NewPatientPage() {
     dob: "",
     email: "",
     phone: "",
+    allergies: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,6 +41,7 @@ export default function NewPatientPage() {
         dob: formData.dob || null,
         email: formData.email || null,
         phone: formData.phone || null,
+        allergies: formData.allergies || null,
       })
       .select()
       .single();
@@ -111,6 +113,19 @@ export default function NewPatientPage() {
                 <p className="mt-1.5 text-xs text-slate-500">
                   Used to link the patient portal account to the correct record.
                 </p>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="label" htmlFor="allergies">Known Allergies</label>
+                <input
+                  id="allergies"
+                  type="text"
+                  value={formData.allergies}
+                  onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
+                  className="input-field"
+                  placeholder="e.g., Penicillin, Sulfa drugs, Aspirin (or leave blank)"
+                />
+                <p className="text-xs text-[var(--text-muted)] mt-1.5">Separate multiple allergies with commas.</p>
               </div>
             </div>
 

@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PrescriptionStatusUpdate from "@/components/PrescriptionStatusUpdate";
 
 export const dynamic = "force-dynamic";
 
@@ -120,7 +121,7 @@ export default async function PatientProfilePage({ params }: Props) {
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-5 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-5 sm:grid-cols-3 lg:grid-cols-5">
               <div>
                 <p className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Email</p>
                 <p className="text-sm font-medium text-slate-200">{patient.email || "Not provided"}</p>
@@ -139,6 +140,18 @@ export default async function PatientProfilePage({ params }: Props) {
                   <p className="text-sm font-medium text-slate-200">{prescriptions?.length || 0}</p>
                   {activeRx > 0 && <span className="badge-active">{activeRx} active</span>}
                 </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">Allergies</p>
+                {patient.allergies ? (
+                  <div className="flex flex-wrap gap-1">
+                    {patient.allergies.split(',').map((a: string) => a.trim()).filter(Boolean).map((allergy: string) => (
+                      <span key={allergy} className="text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded-full">{allergy}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-[var(--text-muted)]">None on file</p>
+                )}
               </div>
             </div>
           </div>
@@ -211,6 +224,7 @@ export default async function PatientProfilePage({ params }: Props) {
                   )}
 
                   {rx.notes && <p className="mt-4 text-xs italic text-slate-500">{rx.notes}</p>}
+                  <PrescriptionStatusUpdate prescriptionId={rx.id} currentStatus={rx.status} />
                 </div>
               ))
             ) : (

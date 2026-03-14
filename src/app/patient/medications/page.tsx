@@ -2,6 +2,9 @@ import { createClient, getCurrentUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AdherenceTracker from "@/components/AdherenceTracker";
+import RefillRequestButton from "@/components/RefillRequestButton";
+import MedicationEducation from "@/components/MedicationEducation";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +33,7 @@ export default async function PatientMedicationsPage() {
   if (patientRecord) {
     const { data } = await supabase
       .from("prescriptions")
-      .select("*, medications(name, dosage, description, interaction_notes)")
+      .select("*, medications(name, dosage, description, interaction_notes), doctor_id")
       .eq("patient_id", patientRecord.id)
       .order("created_at", { ascending: false });
 
@@ -39,6 +42,38 @@ export default async function PatientMedicationsPage() {
 
   const active = prescriptions.filter((p) => p.status === "active");
   const past = prescriptions.filter((p) => p.status !== "active");
+
+  // For each active prescription, get today's adherence log and 30-day stats
+  const today = new Date().toISOString().split('T')[0];
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  const adherenceData: Record<string, { todayLog: "taken" | "missed" | null; percent: number }> = {};
+
+  if (active.length > 0 && patientRecord) {
+    const { data: logs } = await supabase
+      .from('adherence_logs')
+      .select('prescription_id, status, logged_at')
+      .eq('patient_id', patientRecord.id)
+      .gte('logged_at', thirtyDaysAgo);
+
+    for (const rx of active) {
+      const rxLogs = (logs || []).filter((l: any) => l.prescription_id === rx.id);
+      const todayLogs = rxLogs.filter((l: any) => l.logged_at.startsWith(today));
+      const todayLog = todayLogs.length > 0 ? todayLogs[0].status as "taken" | "missed" : null;
+      const takenCount = rxLogs.filter((l: any) => l.status === 'taken').length;
+      const totalCount = rxLogs.length;
+      const percent = totalCount > 0 ? Math.round((takenCount / totalCount) * 100) : 100;
+      adherenceData[rx.id] = { todayLog, percent };
+    }
+  }
+
+  const { data: pendingRefills } = await supabase
+    .from('refill_requests')
+    .select('prescription_id')
+    .eq('patient_id', patientRecord?.id || '')
+    .eq('status', 'pending');
+
+  const pendingRefillIds = new Set((pendingRefills || []).map((r: any) => r.prescription_id));
 
   return (
     <div className="app-shell">
@@ -146,6 +181,28 @@ export default async function PatientMedicationsPage() {
                           </p>
                         </div>
                       )}
+
+                      <MedicationEducation
+                        medicationName={rx.medications?.name || ''}
+                        dose={rx.dose}
+                        frequency={rx.frequency}
+                      />
+
+                      <RefillRequestButton
+                        prescriptionId={rx.id}
+                        patientId={patientRecord!.id}
+                        doctorId={rx.doctor_id}
+                        medicationName={rx.medications?.name || ''}
+                        hasPendingRefill={pendingRefillIds.has(rx.id)}
+                      />
+
+                      <AdherenceTracker
+                        prescriptionId={rx.id}
+                        patientId={patientRecord!.id}
+                        medicationName={rx.medications?.name || ''}
+                        todayLog={adherenceData[rx.id]?.todayLog ?? null}
+                        adherencePercent={adherenceData[rx.id]?.percent ?? 100}
+                      />
 
                       <p className="mt-4 text-xs text-slate-500">
                         Prescribed on {new Date(rx.created_at).toLocaleDateString()}

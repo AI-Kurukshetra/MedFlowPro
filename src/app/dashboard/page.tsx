@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import RefillApproval from "@/components/RefillApproval";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export default async function DashboardPage() {
     { count: activePrescriptionCount },
     { data: recentPrescriptions },
     { data: recentAlerts },
+    { data: pendingRefills },
   ] = await Promise.all([
     supabase
       .from("patients")
@@ -46,6 +48,12 @@ export default async function DashboardPage() {
       .select("*, prescriptions(*, patients(name), medications(name))")
       .order("created_at", { ascending: false })
       .limit(5),
+    supabase
+      .from("refill_requests")
+      .select("*, prescriptions(*, patients(name), medications(name))")
+      .eq("doctor_id", user.id)
+      .eq("status", "pending")
+      .order("requested_at", { ascending: false }),
   ]);
 
   const firstName = profile.full_name.split(" ")[0];
@@ -291,6 +299,8 @@ export default async function DashboardPage() {
             )}
           </div>
         </div>
+
+        <RefillApproval requests={pendingRefills || []} />
 
         <div>
           <p className="eyebrow mb-4">Quick actions</p>

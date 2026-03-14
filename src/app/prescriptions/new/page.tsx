@@ -59,7 +59,7 @@ function NewPrescriptionForm() {
       if (!session) return;
 
       const [{ data: patientsData }, { data: medsData }] = await Promise.all([
-        supabase.from("patients").select("id, name, dob, email").eq("doctor_id", session.user.id).order("name"),
+        supabase.from("patients").select("id, name, dob, email, allergies").eq("doctor_id", session.user.id).order("name"),
         supabase.from("medications").select("*").order("name"),
       ]);
 
@@ -105,6 +105,7 @@ function NewPrescriptionForm() {
           existingMedications: existingMeds,
           patientAge: age,
           patientName: patient?.name,
+          patientAllergies: patient?.allergies ? patient.allergies.split(',').map((a: string) => a.trim()).filter(Boolean) : [],
         }),
       });
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { newMedication, existingMedications, patientAge, patientName } =
+    const { newMedication, existingMedications, patientAge, patientName, patientAllergies } =
       await request.json();
 
     if (!newMedication) {
@@ -29,11 +29,12 @@ Patient Info:
 - Name: ${patientName || "Unknown"}
 - Age: ${patientAge ? `${patientAge} years` : "Unknown"}
 - Currently active medications: ${existingList}
+- Known allergies: ${patientAllergies?.length > 0 ? patientAllergies.join(', ') : 'None known'}
 
 New medication being prescribed: ${newMedication}
 
 Your task:
-1. Identify any clinically significant drug interactions between "${newMedication}" and the existing medications.
+1. Identify any clinically significant drug interactions between "${newMedication}" and the existing medications. Also check for drug-allergy interactions between the new medication and the patient's known allergies.
 2. For each interaction found, assess severity.
 3. Suggest safer alternatives if high/medium risk interactions exist.
 4. If no interactions found, confirm it is safe to prescribe.
