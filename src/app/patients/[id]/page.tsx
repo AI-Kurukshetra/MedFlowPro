@@ -2,6 +2,7 @@ import { createClient, getCurrentUser } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export const dynamic = "force-dynamic";
 
@@ -283,6 +284,7 @@ export default async function PatientProfilePage({ params }: Props) {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

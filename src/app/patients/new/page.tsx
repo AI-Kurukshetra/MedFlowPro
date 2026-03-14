@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import Footer from "@/components/Footer";
 
 export default function NewPatientPage() {
   const router = useRouter();
@@ -136,6 +137,7 @@ export default function NewPatientPage() {
           </form>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

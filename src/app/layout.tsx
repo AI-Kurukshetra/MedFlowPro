@@ -4,6 +4,7 @@ import "./globals.css";
 import NavigationProgress from "@/components/NavigationProgress";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import Footer from "@/components/Footer";
 
 const manrope = Manrope({
   subsets: ["latin"],
